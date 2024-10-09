@@ -18,7 +18,8 @@ async fn main() {
         .route("/:key/url", delete(delete_url))
         .route("/:key/urls", get(get_urls))
         .layer(Extension(state::APP_STATE.clone()));
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let addr = SocketAddr::from(([127, 0, 0, 1], port.parse().unwrap()));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
