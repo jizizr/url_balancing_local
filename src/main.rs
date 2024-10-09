@@ -12,8 +12,8 @@ use std::net::SocketAddr;
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/key", post(create_key))
-        .route("/:key", get(handle_request))
+        .route("/key", post(create_key).get(create_key))
+        .route("/:key", post(handle_request))
         .route("/:key/url", post(add_url))
         .route("/:key/url", delete(delete_url))
         .route("/:key/urls", get(get_urls))
