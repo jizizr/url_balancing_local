@@ -14,5 +14,6 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 ring = "0.17"
 base64 = "0.22"
+url = "2.5"
 [dev-dependencies]
 axum-macros = "0.4.2"

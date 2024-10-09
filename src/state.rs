@@ -11,12 +11,25 @@ pub struct AppState {
 
 lazy_static! {
     pub static ref APP_STATE: Arc<AppState> = {
-        // 初始化 Redis 客户端
-        let redis_client = redis::Client::open("redis://127.0.0.1/").expect("无法连接到 Redis");
+        let redis_url =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+        let redis_password = std::env::var("REDIS_PASSWORD").unwrap_or_else(|_| "".to_string());
 
-        Arc::new(AppState {
-            redis_client,
-        })
+        let redis_url_with_password = if redis_password.is_empty() {
+            redis_url
+        } else {
+            let url = url::Url::parse(&redis_url).expect("Invalid Redis URL");
+            let mut url_with_password = url.clone();
+            url_with_password
+                .set_password(Some(&redis_password))
+                .expect("Failed to set password");
+            url_with_password.to_string()
+        };
+
+        let redis_client =
+            redis::Client::open(redis_url_with_password).expect("Invalid Redis client");
+
+        Arc::new(AppState { redis_client })
     };
 }
 
