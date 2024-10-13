@@ -1,5 +1,4 @@
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use base64::Engine;
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use ring::rand::{SecureRandom, SystemRandom};
 
 /// 生成指定长度的URL安全Token

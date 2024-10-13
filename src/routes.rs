@@ -1,8 +1,9 @@
-use crate::state::AppState;
-use crate::token;
-use axum::extract::{Extension, Json, Path};
-use axum::http::StatusCode;
-use axum::response::Redirect;
+use crate::{state::AppState, token};
+use axum::{
+    extract::{Extension, Json, Path},
+    http::StatusCode,
+    response::Redirect,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
