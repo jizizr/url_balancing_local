@@ -2,7 +2,7 @@ use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, 
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::{error::AppError, LinuxDoUser};
+use crate::{error::AppError, oauth::LinuxDoUser};
 
 // 定义 JWT 的数据结构
 #[derive(Debug, Serialize, Deserialize)]

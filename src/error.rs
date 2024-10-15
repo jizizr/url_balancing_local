@@ -12,6 +12,8 @@ use thiserror::Error;
 #[derive(Error, Debug, EnumDiscriminants)]
 #[strum_discriminants(name(AppErrorKind))]
 pub enum AppError {
+    #[error("404 Not Found")]
+    HTTPNotFound,
     #[error("请求令牌错误: {0}")]
     OAuth2RequestToken(
         #[from]
@@ -24,7 +26,7 @@ pub enum AppError {
     Request(#[from] reqwest::Error),
     #[error("url解析失败")]
     UrlParse(#[from] url::ParseError),
-    #[error("Redis错误")]
+    #[error("Redis错误: {0}")]
     Redis(#[from] redis::RedisError),
     #[error("state过期或不存在")]
     StateNotFound,
@@ -34,6 +36,8 @@ pub enum AppError {
     Unauthorized,
     #[error("无效的响应")]
     Invalid,
+    #[error("数量达到上限")]
+    Limit,
     #[error("未知错误")]
     Unknown,
 }
@@ -52,13 +56,16 @@ pub struct ErrorResponse {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        (
-            StatusCode::OK,
-            Json(ErrorResponse {
-                code: <&AppError as Into<i8>>::into(&self) + 1,
-                error: self.to_string(),
-            }),
-        )
-            .into_response()
+        match &self {
+            AppError::HTTPNotFound => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
+            _ => (
+                StatusCode::OK,
+                Json(ErrorResponse {
+                    code: <&AppError as Into<i8>>::into(&self),
+                    error: self.to_string(),
+                }),
+            )
+                .into_response(),
+        }
     }
 }

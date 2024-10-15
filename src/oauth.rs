@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use crate::{error::AppError, jwt::create_jwt, state::AppState};
+use crate::{error::AppError, handler::CommonResponse, jwt::create_jwt, state::AppState};
 use axum::{
     extract::Query,
     http::{header::SET_COOKIE, HeaderMap},
     response::Redirect,
-    Extension,
+    Extension, Json,
 };
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
@@ -44,9 +44,9 @@ pub struct AuthRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LinuxDoUser {
-    id: i64,
-    name: String,
-    avatar_url: String,
+    pub id: i64,
+    pub name: String,
+    pub avatar_url: String,
 }
 
 #[derive(Serialize)]
@@ -57,7 +57,7 @@ pub struct LinuxAuthResponse {
 pub async fn linuxdo_authorized(
     Query(query): Query<AuthRequest>,
     Extension(state): Extension<Arc<AppState>>,
-) -> Result<(HeaderMap, Redirect), AppError> {
+) -> Result<HeaderMap, AppError> {
     if !state.check_csrf(&query.state).await? {
         return Err(AppError::StateNotFound);
     }
@@ -78,5 +78,14 @@ pub async fn linuxdo_authorized(
     let cookie = format!("jwt={jwtoken}; Path=/; HttpOnly; SameSite=Lax");
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, cookie.parse().map_err(|_| AppError::Invalid)?);
-    Ok((headers, Redirect::to("/info")))
+    Ok(headers)
+}
+
+pub async fn user_info(
+    Extension(user): Extension<LinuxDoUser>,
+) -> Json<CommonResponse<LinuxDoUser>> {
+    Json(CommonResponse {
+        code: 0,
+        data: Some(user),
+    })
 }
