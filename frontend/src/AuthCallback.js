@@ -21,6 +21,8 @@ const AuthCallback = ({ setIsAuthenticated, setUser }) => {
                     if (response.data.code === 0) {
                         setIsAuthenticated(true); // 更新登录状态
                         setUser(response.data.data); // 更新用户信息
+                        localStorage.setItem('isAuthenticated', true);
+                        sessionStorage.setItem('user', JSON.stringify(response.data.data));
                     } else {
                         setIsAuthenticated(false);
                     }

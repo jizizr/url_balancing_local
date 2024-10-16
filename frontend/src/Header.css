@@ -1,0 +1,13 @@
+/* frontend/src/Header.css */
+.mdui-toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.mdui-toolbar .mdui-typo-title {
+    flex-grow: 1;
+}
+
+.mdui-toolbar .mdui-btn {
+    margin-left: auto;
+}

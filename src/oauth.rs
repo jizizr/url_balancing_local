@@ -75,7 +75,11 @@ pub async fn linuxdo_authorized(
         .json()
         .await?;
     let jwtoken = create_jwt(user)?;
-    let cookie = format!("jwt={jwtoken}; Path=/; HttpOnly; SameSite=Lax");
+    let cookie = format!(
+        "jwt={jwtoken}; Path=/; HttpOnly; SameSite=Lax; Max-Age={max_age}",
+        jwtoken = jwtoken,
+        max_age = 3600 * 24 * 30
+    );
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, cookie.parse().map_err(|_| AppError::Invalid)?);
     Ok(headers)
