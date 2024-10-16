@@ -1,7 +1,7 @@
 import React from 'react';
 
 const handleLogin = async () => {
-  window.location.href = "/auth/linuxdo";
+  window.location.href = "api/auth/linuxdo";
 };
 
 const Login = () => {
