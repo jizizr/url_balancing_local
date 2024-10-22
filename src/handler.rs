@@ -1,4 +1,4 @@
-use crate::{error::AppError, oauth::LinuxDoUser, state::AppState, token};
+use crate::{error::AppError, state::AppState, token};
 use axum::{
     extract::{Extension, Json, Path},
     http::StatusCode,
@@ -7,7 +7,18 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-const LIMITATION: i16 = 100;
+lazy_static::lazy_static! {
+    static ref user: LinuxDoUser = LinuxDoUser {
+        id: 0,
+        name: "linuxdo".to_string(),
+    };
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct LinuxDoUser {
+    pub id: i64,
+    pub name: String,
+}
 
 pub async fn url_balancing(
     Path(key): Path<String>,
@@ -42,11 +53,10 @@ pub struct ErrorResponse {
 
 pub async fn add_url(
     Path(key): Path<String>,
-    Extension(user): Extension<LinuxDoUser>,
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<AddUrlRequest>,
 ) -> Result<(StatusCode, Json<CommonResponse<()>>), AppError> {
-    if !state.check_key(Some(user.id), &key).await.unwrap() {
+    if !state.check_key(Some(user.id), &key).await? {
         return Err(AppError::Invalid);
     }
 
@@ -62,14 +72,13 @@ pub async fn add_url(
 }
 
 pub async fn create_key(
-    Extension(user): Extension<LinuxDoUser>,
     Extension(state): Extension<Arc<AppState>>,
 ) -> Result<(StatusCode, Json<CommonResponse<String>>), AppError> {
     let key = token::new_token();
     if state.check_key(Some(user.id), &key).await? {
         return Err(AppError::Invalid);
     }
-    state.add_key(user.id, &key, LIMITATION).await?;
+    state.add_key(user.id, &key).await?;
     Ok((
         StatusCode::OK,
         Json(CommonResponse {
@@ -81,7 +90,6 @@ pub async fn create_key(
 
 pub async fn delete_url(
     Path(key): Path<String>,
-    Extension(user): Extension<LinuxDoUser>,
     Extension(state): Extension<Arc<AppState>>,
     Json(url): Json<AddUrlRequest>,
 ) -> Result<(StatusCode, Json<CommonResponse<()>>), AppError> {
@@ -120,7 +128,6 @@ pub async fn get_urls(
 }
 
 pub async fn get_keys(
-    Extension(user): Extension<LinuxDoUser>,
     Extension(state): Extension<Arc<AppState>>,
 ) -> Result<(StatusCode, Json<CommonResponse<Vec<String>>>), AppError> {
     let tokens = state.get_user_keys(user.id).await?;
@@ -130,6 +137,16 @@ pub async fn get_keys(
         Json(CommonResponse {
             code: 0,
             data: Some(tokens),
+        }),
+    ))
+}
+
+pub async fn user_info() -> Result<(StatusCode, Json<CommonResponse<LinuxDoUser>>), AppError> {
+    Ok((
+        StatusCode::OK,
+        Json(CommonResponse {
+            code: 0,
+            data: Some(user.clone()),
         }),
     ))
 }

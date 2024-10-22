@@ -116,7 +116,7 @@ const DeleteUrl = async (key, url, urls, setUrls) => {
     }
 }
 const handleCopy = (key) => {
-    navigator.clipboard.writeText("https://" + window.location.host + "/api/" + key)
+    navigator.clipboard.writeText("http://" + window.location.host + "/api/" + key)
         .then(() => {
             handleCopyClick();
         })

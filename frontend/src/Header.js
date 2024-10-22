@@ -17,16 +17,6 @@ const Header = ({ user }) => {
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 {user ? (
                     <>
-                        <img
-                            src={user.avatar_url}
-                            alt={user.name}
-                            style={{
-                                width: '35px',
-                                height: '35px',
-                                borderRadius: '50%',
-                                cursor: 'pointer'
-                            }}
-                        />
                         <span style={{ marginRight: '10px', fontSize: '16px' }}>{user.name}</span>
                     </>
                 ) : (

@@ -3,7 +3,6 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use oauth2::{basic::BasicErrorResponseType, RequestTokenError, StandardErrorResponse};
 use serde::Serialize;
 use strum_macros::EnumDiscriminants;
 use thiserror::Error;
@@ -14,24 +13,12 @@ use thiserror::Error;
 pub enum AppError {
     #[error("404 Not Found")]
     HTTPNotFound,
-    #[error("请求令牌错误: {0}")]
-    OAuth2RequestToken(
-        #[from]
-        RequestTokenError<
-            oauth2::reqwest::AsyncHttpClientError,
-            StandardErrorResponse<BasicErrorResponseType>,
-        >,
-    ),
-    #[error("请求错误: {0}")]
-    Request(#[from] reqwest::Error),
     #[error("url解析失败")]
     UrlParse(#[from] url::ParseError),
-    #[error("Redis错误: {0}")]
-    Redis(#[from] redis::RedisError),
+    #[error("sqlx错误: {0}")]
+    Redis(#[from] sqlx::Error),
     #[error("state过期或不存在")]
     StateNotFound,
-    #[error("token异常: {0}")]
-    Token(#[from] jsonwebtoken::errors::Error),
     #[error("未认证")]
     Unauthorized,
     #[error("无效的响应")]
