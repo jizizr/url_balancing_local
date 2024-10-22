@@ -1,8 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch: # Manually triggered action
-
+  push:
+    tags:
+      - v*
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -54,11 +55,6 @@ jobs:
       # Create a new GitHub release
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: "v1.0.0" # Can dynamically set version if needed
-          release_name: "Release v1.0.0"
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "output/*"
