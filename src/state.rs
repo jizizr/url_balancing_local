@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 use sqlx::{sqlite::SqliteRow, Executor, Row, SqlitePool};
-use std::sync::Arc;
+use std::{fs, path::Path, sync::Arc};
 
 pub struct AppState {
     pub db_pool: SqlitePool,
@@ -8,7 +8,16 @@ pub struct AppState {
 
 lazy_static! {
     pub static ref APP_STATE: Arc<AppState> = {
-        let db_url = "sqlite://app.db";  // 指定数据库文件，SQLite会自动创建该文件
+        let db_url = "sqlite://app.db";
+        let db_path = "app.db";
+
+        // 文件不存在时创建数据库文件
+        if !Path::new(db_path).exists() {
+
+            fs::File::create(db_path).expect("Failed to create the database file");
+        }
+
+        // 创建连接池
         let db_pool = SqlitePool::connect_lazy(db_url).expect("Failed to create DB pool");
         Arc::new(AppState { db_pool })
     };
