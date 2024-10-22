@@ -23,7 +23,7 @@ jobs:
 
     steps:
       # Checkout the repository
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Set up Rust environment
       - uses: actions-rs/toolchain@v1
@@ -52,9 +52,23 @@ jobs:
             tar -czvf ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }} -C target/release url_balancing -C ../../ build
           fi
 
-      # Create a new GitHub release
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
+      - name: Archive atrifacts
+        uses: actions/upload-artifact@v4
         with:
-          artifacts: "output/*"
+          name: url-balancing-${{ matrix.jobs.os }}
+          path: |
+            ./output/*.zip
+            ./output/*.tar.gz
+  Upload-Release:
+      needs: [build]
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/download-artifact@v4
+          with:
+            path: output/
+            merge-multiple: true
+        - name: Upload Release
+          uses: ncipollo/release-action@v1
+          with:
+            artifacts: "output/*"
