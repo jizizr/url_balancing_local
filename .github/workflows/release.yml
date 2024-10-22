@@ -52,7 +52,7 @@ jobs:
         if: ${{matrix.os == 'windows-latest' }}
         run: |
           mkdir output
-          powershell Compress-Archive -Path target/release,url_balancing.exe build -DestinationPath ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }}
+          powershell Compress-Archive -Path target/release/url_balancing.exe, build -DestinationPath ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }}
       - name: Archive atrifacts
         uses: actions/upload-artifact@v4
         with:
