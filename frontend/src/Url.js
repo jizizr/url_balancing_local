@@ -41,8 +41,19 @@ export const AddUrl = () => {
                 marginTop: '3vh'
             }}>
             <div>
-                <h3 className="mdui-typo">Manage URLs for Key:
-                    <code><u>{key}</u></code></h3>
+                <h3 className="mdui-typo">KEY:
+                    <code><u>{key}</u></code>
+                    <mdui-button
+                        slot="end-icon"
+                        onClick={() => handleCopy(key)}
+                        icon="content_copy"
+                        iconPosition="right"
+                        variant="outlined"
+                    >复制链接</mdui-button>
+                </h3>
+            </div>
+            <div>
+                <h3>管理负载均衡组</h3>
             </div>
             <div
                 style={{
@@ -103,4 +114,20 @@ const DeleteUrl = async (key, url, urls, setUrls) => {
     } catch (error) {
         console.error('Failed to delete URL', error);
     }
+}
+const handleCopy = (key) => {
+    navigator.clipboard.writeText("https://" + window.location.host + "/api/" + key)
+        .then(() => {
+            handleCopyClick();
+        })
+        .catch(err => {
+            console.error('复制失败: ', err);
+        });
+};
+
+const handleCopyClick = () => {
+    window.mdui.snackbar({
+        closeOnOutsideClick: true,
+        message: "复制链接成功",
+    });
 }

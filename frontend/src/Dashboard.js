@@ -38,7 +38,7 @@ const Dashboard = ({ user }) => {
   };
 
   const handleCopy = (key) => {
-    navigator.clipboard.writeText("https://" + window.location.host + "/" + key)
+    navigator.clipboard.writeText("https://" + window.location.host + "/api/" + key)
       .then(() => {
         handleCopyClick();
       })
