@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  workflow_dispatch: # Manual trigger for the action
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            extension: ".tar.gz"
+            system_name: "linux"
+          - os: macos-latest
+            extension: ".tar.gz"
+            system_name: "macos"
+          - os: windows-latest
+            extension: ".zip"
+            system_name: "windows"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      # Build Rust backend
+      - name: Build Rust backend
+        run: cargo build --release
+
+      # Build frontend (npm)
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          mv build ../
+
+      # Package the Rust and frontend build results
+      - name: Package build and backend
+        run: |
+          mkdir output
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            powershell Compress-Archive -Path target/release,url_balancing.exe build -DestinationPath ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }}
+          else
+            tar -czvf ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }} -C target/release url_balancing -C ../../ build
+          fi
+
+      # Create GitHub release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v1.0.0" # You can dynamically set the version here
+          release_name: "Release v1.0.0"
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload the packaged files to the release
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/url_balancing_${{ matrix.system_name }}${{ matrix.extension }}
+          asset_name: url_balancing_${{ matrix.system_name }}${{ matrix.extension }}
+          asset_content_type: application/octet-stream
