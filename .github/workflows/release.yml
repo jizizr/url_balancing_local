@@ -55,7 +55,7 @@ jobs:
       - name: Archive atrifacts
         uses: actions/upload-artifact@v4
         with:
-          name: url-balancing-${{ matrix.jobs.os }}
+          name: url-balancing-${{ matrix.os }}
           path: |
             ./output/*.zip
             ./output/*.tar.gz
