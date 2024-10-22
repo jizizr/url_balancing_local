@@ -61,6 +61,7 @@ jobs:
             ./output/*.zip
             ./output/*.tar.gz
   Upload-Release:
+      permissions: write-all
       needs: [build]
       runs-on: ubuntu-latest
       steps:
