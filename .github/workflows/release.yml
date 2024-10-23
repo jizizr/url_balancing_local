@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag version to release"
+        required: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -29,11 +32,16 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}
       # Build Rust backend
       - name: Build Rust backend
         run: cargo build --release
-
+      # Set up Node.js environment
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       # Build frontend (npm)
       - name: Build frontend
         run: |
@@ -71,11 +79,7 @@ jobs:
             path: output/
             merge-multiple: true
         - name: Upload Release
-          uses: ncipollo/release-action@v1
-          with:
-            artifacts: "output/*"
-            token: ${{ secrets.GITHUB_TOKEN }}
-        - name: Upload Release
           uses: softprops/action-gh-release@v2
           with:
             files: output/*
+            tag_name: ${{ github.event.inputs.version }}
