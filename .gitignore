@@ -1,5 +1,6 @@
 /target
 /.vscode
+/.idea
 *.db
 # dependencies
 /node_modules

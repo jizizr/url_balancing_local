@@ -83,11 +83,10 @@ impl AppState {
         let mut conn = self.db_pool.acquire().await?;
 
         let url: Option<String> =
-            sqlx::query("SELECT url FROM urls u JOIN keys k ON u.key_id = k.id WHERE k.key = ?")
+            sqlx::query("SELECT url FROM urls u JOIN keys k ON u.key_id = k.id WHERE k.key = ? ORDER BY RANDOM() LIMIT 1")
                 .bind(key)
-                .map(|row: SqliteRow| row.get(0))
-                .fetch_optional(&mut *conn)
-                .await?;
+                .fetch_one(&mut *conn)
+                .await?.try_get(0)?;
 
         Ok(url)
     }
